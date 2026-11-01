@@ -1,0 +1,131 @@
+sudo apt update
+sudo apt install -y mongodb-org
+
+sudo systemctl start mongod
+sudo systemctl enable mongod
+
+sudo apt install python3-pymongo -y
+
+python3 -c "import pymongo; print('PyMongo Installed Successfully')"
+
+use college
+db.createCollection("student")
+show collections
+
+mkdir DBMS_Practical9
+cd DBMS_Practical9
+nano student.py	
+
+
+from pymongo import MongoClient
+
+# Connect to MongoDB
+client = MongoClient("mongodb://localhost:27017/")
+
+# Select database and collection
+db = client["college"]
+collection = db["student"]
+
+print("MongoDB Connected Successfully!")
+
+while True:
+
+    print("\n--- STUDENT MANAGEMENT SYSTEM ---")
+    print("1. Add Student")
+    print("2. Display Students")
+    print("3. Edit Student")
+    print("4. Delete Student")
+    print("5. Search Student")
+    print("6. Exit")
+
+    choice = int(input("Enter your choice: "))
+
+    if choice == 1:
+
+        roll_no = int(input("Enter Roll Number: "))
+        name = input("Enter Name: ")
+        age = int(input("Enter Age: "))
+        course = input("Enter Course: ")
+
+        student = {
+            "roll_no": roll_no,
+            "name": name,
+            "age": age,
+            "course": course
+        }
+
+        collection.insert_one(student)
+
+        print("Student Added Successfully!")
+
+    elif choice == 2:
+
+        records = collection.find()
+
+        print("\nRoll No\tName\tAge\tCourse")
+
+        for record in records:
+            print(record["roll_no"], "\t",
+                  record["name"], "\t",
+                  record["age"], "\t",
+                  record["course"])
+
+    elif choice == 3:
+
+        roll_no = int(input("Enter Roll Number to Edit: "))
+
+        name = input("Enter New Name: ")
+        age = int(input("Enter New Age: "))
+        course = input("Enter New Course: ")
+
+        result = collection.update_one(
+            {"roll_no": roll_no},
+            {"$set": {
+                "name": name,
+                "age": age,
+                "course": course
+            }}
+        )
+
+        if result.matched_count > 0:
+            print("Student Updated Successfully!")
+        else:
+            print("Student Not Found!")
+
+    elif choice == 4:
+
+        roll_no = int(input("Enter Roll Number to Delete: "))
+
+        result = collection.delete_one(
+            {"roll_no": roll_no}
+        )
+
+        if result.deleted_count > 0:
+            print("Student Deleted Successfully!")
+        else:
+            print("Student Not Found!")
+
+    elif choice == 5:
+
+        roll_no = int(input("Enter Roll Number to Search: "))
+
+        record = collection.find_one(
+            {"roll_no": roll_no}
+        )
+
+        if record:
+            print("Roll Number:", record["roll_no"])
+            print("Name:", record["name"])
+            print("Age:", record["age"])
+            print("Course:", record["course"])
+        else:
+            print("Student Not Found!")
+
+    elif choice == 6:
+
+        print("Program Exited Successfully!")
+        client.close()
+        break
+
+    else:
+        print("Invalid Choice!")

@@ -1,0 +1,123 @@
+sudo apt update
+sudo apt install python3 python3-pip -y
+
+ sudo apt install mysql-server -y
+sudo systemctl start MySQL
+
+sudo apt install python3-mysql.connector -y
+
+sudo MySQL
+
+mkdir DBMS_Practical8
+cd DBMS_Practical8
+nano student.py
+
+
+import mysql.connector
+
+# Database Connection
+con = mysql.connector.connect(
+    host="localhost",
+    user="dbuser",
+    password="dbpass",
+    database="college"
+)
+
+cur = con.cursor()
+
+print("Database Connected Successfully!")
+
+while True:
+
+    print("\n--- STUDENT MANAGEMENT SYSTEM ---")
+    print("1. Add Student")
+    print("2. Display Students")
+    print("3. Edit Student")
+    print("4. Delete Student")
+    print("5. Search Student")
+    print("6. Exit")
+
+    choice = int(input("Enter your choice: "))
+
+    if choice == 1:
+        name = input("Enter Name: ")
+        age = int(input("Enter Age: "))
+        course = input("Enter Course: ")
+
+        sql = "INSERT INTO student(name, age, course) VALUES (%s, %s, %s)"
+        val = (name, age, course)
+
+        cur.execute(sql, val)
+        con.commit()
+
+        print("Student Added Successfully!")
+
+    elif choice == 2:
+        cur.execute("SELECT * FROM student")
+
+        records = cur.fetchall()
+
+        print("\nID\tName\tAge\tCourse")
+
+        for row in records:
+            print(row[0], "\t", row[1], "\t", row[2], "\t", row[3])
+
+    elif choice == 3:
+        sid = int(input("Enter Student ID to Edit: "))
+
+        name = input("Enter New Name: ")
+        age = int(input("Enter New Age: "))
+        course = input("Enter New Course: ")
+
+        sql = "UPDATE student SET name=%s, age=%s, course=%s WHERE id=%s"
+        val = (name, age, course, sid)
+
+        cur.execute(sql, val)
+        con.commit()
+
+        if cur.rowcount > 0:
+            print("Student Updated Successfully!")
+        else:
+            print("Student ID Not Found!")
+
+    elif choice == 4:
+        sid = int(input("Enter Student ID to Delete: "))
+
+        sql = "DELETE FROM student WHERE id=%s"
+        val = (sid,)
+
+        cur.execute(sql, val)
+        con.commit()
+
+        if cur.rowcount > 0:
+            print("Student Deleted Successfully!")
+        else:
+            print("Student ID Not Found!")
+
+    elif choice == 5:
+        sid = int(input("Enter Student ID to Search: "))
+
+        sql = "SELECT * FROM student WHERE id=%s"
+        val = (sid,)
+
+        cur.execute(sql, val)
+
+        record = cur.fetchone()
+
+        if record:
+            print("ID:", record[0])
+            print("Name:", record[1])
+            print("Age:", record[2])
+            print("Course:", record[3])
+        else:
+            print("Student Not Found!")
+
+    elif choice == 6:
+        print("Program Exited Successfully!")
+        break
+
+    else:
+        print("Invalid Choice!")
+
+cur.close()
+con.close()

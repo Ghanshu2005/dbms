@@ -1,0 +1,114 @@
+
+sudo systemctl start mongod
+mongosh
+// Create or switch database
+use ICEM
+show collections
+// Create employee collection
+db.createCollection("employee")
+db.employee.insertMany([
+    {
+        empid: 101,
+        ename: "Amit",
+        dept: "Computer",
+        salary: 45000
+    },
+    {
+        empid: 102,
+        ename: "Rahul",
+        dept: "IT",
+        salary: 35000
+    },
+    {
+        empid: 103,
+        ename: "Sneha",
+        dept: "Computer",
+        salary: 50000
+    },
+    {
+        empid: 104,
+        ename: "Priya",
+        dept: "HR",
+        salary: 25000
+    },
+    {
+        empid: 105,
+        ename: "Karan",
+        dept: "IT",
+        salary: 40000
+    },
+    {
+        empid: 106,
+        ename: "Neha",
+        dept: "Computer",
+        salary: 30000
+    },
+    {
+        empid: 107,
+        ename: "Rohan",
+        dept: "HR",
+        salary: 20000
+    }
+])
+
+2. Display information of all employees
+db.employee.find()
+
+3. Display employees working in Computer department
+db.employee.find({
+    dept: "Computer"
+})
+
+4. Display employees working in Computer or IT department using logical operator
+db.employee.find({
+    $or: [
+        { dept: "Computer" },
+        { dept: "IT" }
+    ]
+})
+
+5. Display employees whose salary is greater than ₹30,000
+db.employee.find({
+    salary: { $gt: 30000 }
+})		
+
+6. Display employees whose salary is greater than or equal to ₹40,000 and work in Computer department
+db.employee.find({
+    salary: { $gte: 40000 },
+    dept: "Computer"
+})
+
+7. Create an index on ename field and drop the index
+Create index:
+db.employee.createIndex({ ename: 1 })
+
+
+Display indexes:
+db.employee.getIndexes()
+
+
+Drop index:
+db.employee.dropIndex({ ename: 1 })
+
+8. Display employees whose salary is between ₹20,000 and ₹40,000
+db.employee.find({
+    salary: {
+        $gte: 20000,
+        $lte: 40000
+    }
+})
+
+9. Display employees whose department is not IT
+db.employee.find({
+    dept: { $ne: "IT" }
+})
+
+10. Display total salary paid to employees in each department
+db.employee.aggregate([
+    {
+        $group: {
+            _id: "$dept",
+            Total_Salary: { $sum: "$salary" }
+        }
+    }
+])

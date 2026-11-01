@@ -1,0 +1,160 @@
+CREATE DATABASE BankDB;
+USE BankDB;
+
+-- 1. Branch Table
+CREATE TABLE Branch (
+    branch_name VARCHAR(50) PRIMARY KEY,
+    branch_city VARCHAR(50) NOT NULL,
+    assets DECIMAL(15,2) NOT NULL
+);
+
+-- 2. Customer Table
+CREATE TABLE Customer (
+    cust_name VARCHAR(50) PRIMARY KEY,
+    cust_street VARCHAR(100) NOT NULL,
+    cust_city VARCHAR(50) NOT NULL
+);
+
+-- 3. Account Table
+CREATE TABLE Account (
+    Acc_no INT PRIMARY KEY,
+    branch_name VARCHAR(50),
+    balance DECIMAL(12,2) NOT NULL,
+    FOREIGN KEY (branch_name)
+    REFERENCES Branch(branch_name)
+);
+
+-- 4. Depositor Table
+CREATE TABLE Depositor (
+    cust_name VARCHAR(50),
+    Acc_no INT,
+    PRIMARY KEY (cust_name, Acc_no),
+    FOREIGN KEY (cust_name)
+    REFERENCES Customer(cust_name),
+    FOREIGN KEY (Acc_no)
+    REFERENCES Account(Acc_no)
+);
+
+-- 5. Loan Table
+CREATE TABLE Loan (
+    loan_no INT PRIMARY KEY,
+    branch_name VARCHAR(50),
+    amount DECIMAL(12,2) NOT NULL,
+    FOREIGN KEY (branch_name)
+    REFERENCES Branch(branch_name)
+);
+
+-- 6. Borrower Table
+CREATE TABLE Borrower (
+    cust_name VARCHAR(50),
+    loan_no INT,
+    PRIMARY KEY (cust_name, loan_no),
+    FOREIGN KEY (cust_name)
+    REFERENCES Customer(cust_name),
+    FOREIGN KEY (loan_no)
+    REFERENCES Loan(loan_no)
+);
+
+-- Insert Branches
+INSERT INTO Branch VALUES
+('Akurdi', 'Pune', 10000000),
+('Chinchwad', 'Pune', 15000000),
+('Nigdi', 'Pune', 8000000),
+('Pimpri', 'Pune', 12000000);
+
+-- Insert Customers
+INSERT INTO Customer VALUES
+('Amit', 'MG Road', 'Pune'),
+('Rahul', 'Station Road', 'Pune'),
+('Sneha', 'FC Road', 'Pune'),
+('Priya', 'JM Road', 'Pune'),
+('Karan', 'Akurdi Road', 'Pune'),
+('Neha', 'Nigdi Road', 'Pune');
+
+-- Insert Accounts
+INSERT INTO Account VALUES
+(101, 'Akurdi', 50000),
+(102, 'Chinchwad', 75000),
+(103, 'Nigdi', 60000),
+(104, 'Pimpri', 90000),
+(105, 'Chinchwad', 85000),
+(106, 'Akurdi', 40000);
+
+-- Insert Depositors
+INSERT INTO Depositor VALUES
+('Amit', 101),
+('Rahul', 102),
+('Sneha', 103),
+('Priya', 104),
+('Karan', 105),
+('Neha', 106);
+
+-- Insert Loans
+INSERT INTO Loan VALUES
+(201, 'Akurdi', 600000),
+(202, 'Chinchwad', 400000),
+(203, 'Nigdi', 700000),
+(204, 'Pimpri', 800000),
+(205, 'Akurdi', 300000),
+(206, 'Chinchwad', 900000);
+
+-- Insert Borrowers
+INSERT INTO Borrower VALUES
+('Amit', 201),
+('Rahul', 202),
+('Sneha', 203),
+('Priya', 204),
+('Karan', 205),
+('Neha', 206);
+
+2. Add customer phone number in Customer table
+ALTER TABLE Customer
+ADD phone_no VARCHAR(15);
+
+3. Delete phone number attribute from Customer table
+ALTER TABLE Customer
+DROP COLUMN phone_no;
+
+4. Find the names of all branches in Loan relation
+SELECT DISTINCT branch_name
+FROM Loan;	
+
+5. Find all customers who have a loan from bank. Display their names, loan number and loan amount.
+SELECT B.cust_name, L.loan_no, L.amount
+FROM Borrower B
+JOIN Loan L
+ON B.loan_no = L.loan_no;
+
+6. List all customers in alphabetical order who have loan from Akurdi branch
+SELECT B.cust_name
+FROM Borrower B
+JOIN Loan L
+ON B.loan_no = L.loan_no
+WHERE L.branch_name = 'Akurdi'
+ORDER BY B.cust_name ASC;
+
+7. Find average account balance at Chinchwad branch
+SELECT AVG(balance) AS Average_Balance
+FROM Account
+WHERE branch_name = 'Chinchwad';
+
+8. Find number of depositors at each branch
+SELECT A.branch_name,
+COUNT(DISTINCT D.cust_name) AS Total_Depositors
+FROM Account A
+JOIN Depositor D
+ON A.Acc_no = D.Acc_no
+GROUP BY A.branch_name;
+
+9. Find the total loan amount for each branch
+SELECT branch_name,
+SUM(amount) AS Total_Loan_Amount
+FROM Loan
+GROUP BY branch_name;
+
+10. Find branches where the average loan amount is greater than 5,00,000
+SELECT branch_name,
+AVG(amount) AS Average_Loan
+FROM Loan
+GROUP BY branch_name
+HAVING AVG(amount) > 500000;

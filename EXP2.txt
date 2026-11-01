@@ -1,0 +1,103 @@
+CREATE TABLE Students (
+    student_id INT PRIMARY KEY,
+    name VARCHAR(50),
+    city VARCHAR(30)
+);
+CREATE TABLE Students (
+    student_id INT PRIMARY KEY,
+    name VARCHAR(50),
+    city VARCHAR(30)
+);
+CREATE TABLE Enrolments (
+    enroll_id INT PRIMARY KEY,
+    student_id INT,
+    course VARCHAR(50),
+    marks INT,
+    FOREIGN KEY (student_id) REFERENCES Students(student_id)
+);
+Q1. Display student names along with their course names and marks.
+SELECT s.name, e.course, e.marks
+FROM Students s
+INNER JOIN Enrolments e
+ON s.student_id = e.student_id;
+
+Q2. Display all students along with their course names and marks, including students who are not enrolled in any course.
+SELECT s.student_id, s.name, e.course, e.marks
+FROM Students s
+LEFT JOIN Enrolments e
+ON s.student_id = e.student_id;
+
+Q3. Display all enrollments along with the corresponding student names.
+SELECT e.enroll_id, e.student_id, s.name, e.course, e.marks
+FROM Students s
+RIGHT JOIN Enrolments e
+ON s.student_id = e.student_id;
+
+Q4. Display all possible combinations of students and courses.
+SELECT s.name, c.course
+FROM Students s
+CROSS JOIN (
+    SELECT DISTINCT course
+    FROM Enrolments
+) c;
+
+Q5. Display students whose marks are greater than the average marks of all enrollments.
+SELECT s.name, e.course, e.marks
+FROM Students s
+INNER JOIN Enrolments e
+ON s.student_id = e.student_id
+WHERE e.marks > (
+    SELECT AVG(marks)
+    FROM Enrolments
+);
+
+Q6. Display students who have obtained marks greater than 80.
+SELECT s.name, e.course, e.marks
+FROM Students s
+INNER JOIN Enrolments e
+ON s.student_id = e.student_id
+WHERE e.marks > 80;
+
+Q7. Display students who are enrolled in the DBMS course.
+SELECT s.student_id, s.name, e.course, e.marks
+FROM Students s
+INNER JOIN Enrolments e
+ON s.student_id = e.student_id
+WHERE e.course = 'DBMS';
+
+Q8. Display the student ID(s) who have obtained the highest marks.
+SELECT student_id
+FROM Enrolments
+WHERE marks = (
+    SELECT MAX(marks)
+    FROM Enrolments
+);
+
+Q9. Create a view named student_course_view displaying student names, course names and marks. Display all records from the view and update marks through the view.
+This question has three steps.
+
+Step 1: Create the view
+CREATE VIEW student_course_view AS
+SELECT e.enroll_id, s.name, e.course, e.marks
+FROM Students s
+INNER JOIN Enrolments e
+ON s.student_id = e.student_id;
+
+Step 2: Display all records from the view
+SELECT * FROM student_course_view;
+
+
+This displays all records stored through the view.
+
+Step 3: Update marks through the view
+UPDATE student_course_view
+SET marks = 95
+WHERE enroll_id = 101;
+
+Q10. Create an index on the name column of the Students table and a unique index on the enroll_id column of the Enrolments table.
+Step 1: Create index on Students name
+CREATE INDEX idx_student_name
+ON Students(name);
+Step 2: Create unique index on enroll_id
+CREATE UNIQUE INDEX idx_enroll_id_unique
+ON Enrolments(enroll_id);

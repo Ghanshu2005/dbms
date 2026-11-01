@@ -1,0 +1,140 @@
+CREATE DATABASE Bank14;
+USE Bank14;
+
+-- 1. Customer Table
+CREATE TABLE Customer (
+    cust_id INT PRIMARY KEY,
+    cust_name VARCHAR(50) NOT NULL,
+    city VARCHAR(50) NOT NULL,
+    phone VARCHAR(15)
+);
+
+-- 2. Branch Table
+CREATE TABLE Branch (
+    branch_id INT PRIMARY KEY,
+    branch_name VARCHAR(50) NOT NULL,
+    branch_city VARCHAR(50) NOT NULL
+);
+
+-- 3. Account Table
+CREATE TABLE Account (
+    acc_no INT PRIMARY KEY,
+    cust_id INT,
+    branch_id INT,
+    balance DECIMAL(12,2),
+    FOREIGN KEY (cust_id) REFERENCES Customer(cust_id),
+    FOREIGN KEY (branch_id) REFERENCES Branch(branch_id)
+);
+
+-- 4. Loan Table
+CREATE TABLE Loan (
+    loan_no INT PRIMARY KEY,
+    cust_id INT,
+    branch_id INT,
+    amount DECIMAL(12,2),
+    FOREIGN KEY (cust_id) REFERENCES Customer(cust_id),
+    FOREIGN KEY (branch_id) REFERENCES Branch(branch_id)
+);
+
+SHOW TABLES;
+
+SELECT * FROM Customer;
+SELECT * FROM Branch;
+SELECT * FROM Account;
+SELECT * FROM Loan; 	
+
+2. Display all customers who live in Pune or Mumbai, arranged alphabetically
+SELECT *
+FROM Customer
+WHERE city IN ('Pune', 'Mumbai')
+ORDER BY cust_name ASC;
+
+3. Display names of customers whose names contain the letter 'a'
+SELECT cust_name
+FROM Customer
+WHERE cust_name LIKE '%a%';
+
+4. Display customers whose phone number is NOT NULL
+SELECT *
+FROM Customer
+WHERE phone IS NOT NULL;
+
+5. Display customers who live in Pune and whose names start with 'P', or customers who live in Mumbai
+SELECT *
+FROM Customer
+WHERE (city = 'Pune' AND cust_name LIKE 'P%')
+OR city = 'Mumbai';
+
+6. Display maximum loan amount and average loan amount for each branch
+SELECT
+    B.branch_name,
+    MAX(L.amount) AS Maximum_Loan,
+    AVG(L.amount) AS Average_Loan
+FROM Branch B
+JOIN Loan L
+ON B.branch_id = L.branch_id
+GROUP BY B.branch_id, B.branch_name;
+
+7. Display branches whose total loan amount is greater than ₹1,00,000
+SELECT
+    B.branch_name,
+    SUM(L.amount) AS Total_Loan
+FROM Branch B
+JOIN Loan L
+ON B.branch_id = L.branch_id
+GROUP BY B.branch_id, B.branch_name
+HAVING SUM(L.amount) > 100000;
+
+8. Display each account number with balance after adding ₹500 (without modifying actual balance)
+SELECT
+    acc_no,
+    balance,
+    balance + 500 AS Updated_Balance
+FROM Account;
+
+9. Change the branch of account number 2005 to a different branch
+UPDATE Account
+SET branch_id = 104
+WHERE acc_no = 2005;
+
+0. Delete all customers whose phone number is NULL
+Because Account and Loan tables reference Customer through foreign keys, first delete the dependent records.
+DELETE FROM Account
+WHERE cust_id IN (
+    SELECT cust_id
+    FROM Customer
+    WHERE phone IS NULL
+);
+
+DELETE FROM Loan
+WHERE cust_id IN (
+    SELECT cust_id
+    FROM Customer
+    WHERE phone IS NULL
+);
+
+DELETE FROM Customer
+WHERE phone IS NULL;
+
+11. Display customers who have both an account and a loan using INTERSECT, and customers who have an account but no loan using MINUS
+(a) Customers who have both an account and a loan
+
+Oracle SQL:
+SELECT cust_id
+FROM Account
+
+INTERSECT
+
+SELECT cust_id
+FROM Loan;
+
+b) Customers who have an account but no loan
+
+Oracle SQL:
+SELECT cust_id
+FROM Account
+
+MINUS
+
+SELECT cust_id
+FROM Loan;

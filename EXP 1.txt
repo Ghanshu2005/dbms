@@ -1,0 +1,115 @@
+CREATE TABLE Customer (
+    cust_id INT PRIMARY KEY,
+    cust_name VARCHAR(50),
+    city VARCHAR(30),
+    phone VARCHAR(15)
+);
+CREATE TABLE Branch (
+    branch_id INT PRIMARY KEY,
+    branch_name VARCHAR(50),
+    branch_city VARCHAR(30)
+);
+CREATE TABLE Account (
+    acc_no INT PRIMARY KEY,
+    cust_id INT,
+    branch_id INT,
+    balance DECIMAL(10,2),
+    FOREIGN KEY (cust_id) REFERENCES Customer(cust_id),
+    FOREIGN KEY (branch_id) REFERENCES Branch(branch_id)
+);
+CREATE TABLE Loan (
+    loan_no INT PRIMARY KEY,
+    cust_id INT,
+    branch_id INT,
+    amount DECIMAL(10,2),
+    FOREIGN KEY (cust_id) REFERENCES Customer(cust_id),
+    FOREIGN KEY (branch_id) REFERENCES Branch(branch_id)
+);
+
+SELECT * FROM Customer;
+SELECT * FROM Branch;
+SELECT * FROM Account;
+SELECT * FROM Loan;
+
+Q1. Display all customers in alphabetical order of their names.
+SELECT * FROM Customer
+ORDER BY cust_name ASC;
+
+Q2. Display names and cities of customers whose names start with P.
+SELECT cust_name, city
+FROM Customer
+WHERE cust_name LIKE 'P%';
+
+Q3. Display customers who live in Pune or Mumbai and whose phone number is NOT NULL.
+SELECT *
+FROM Customer
+WHERE city IN ('Pune', 'Mumbai')
+AND phone IS NOT NULL;
+
+Q4. Display all customers whose phone number is NULL.
+SELECT *
+FROM Customer
+WHERE phone IS NULL;
+
+Q5. Display the average account balance for each branch.
+SELECT branch_id, AVG(balance) AS average_balance
+FROM Account
+GROUP BY branch_id;
+
+Q6. Display branch-wise average account balance and show only branches where average balance is greater than ₹40,000.
+SELECT branch_id, AVG(balance) AS average_balance
+FROM Account
+GROUP BY branch_id
+HAVING AVG(balance) > 40000;
+
+Q7. Display each account number along with its balance after adding 10% interest. Do not modify the actual balance.
+SELECT
+    acc_no,
+    balance,
+    balance + (balance * 0.10) AS balance_with_interest
+FROM Account;
+
+Q8. Update the phone number of a specific customer using the customer's name.
+UPDATE Customer
+SET phone = '9999999999'
+WHERE cust_name = 'Rahul';
+
+Q9. Delete all customer records for customers who live in Pune.
+Because we created foreign keys, directly deleting Pune customers may fail if their account or loan records still reference them.
+
+First delete their related records, then delete the customers.
+
+Step 1: Delete their account records.
+DELETE FROM Account
+WHERE cust_id IN (
+    SELECT cust_id
+    FROM Customer
+    WHERE city = 'Pune'
+);
+
+
+Step 2: Delete their loan records.
+DELETE FROM Loan
+WHERE cust_id IN (
+    SELECT cust_id
+    FROM Customer
+    WHERE city = 'Pune'
+);
+
+
+Step 3: Delete Pune customers.
+DELETE FROM Customer
+WHERE city = 'Pune';
+
+Q10. Display customers who either have an account or have a loan using UNION.
+SELECT c.cust_id, c.cust_name
+FROM Customer c
+INNER JOIN Account a
+ON c.cust_id = a.cust_id
+
+UNION
+
+SELECT c.cust_id, c.cust_name
+FROM Customer c
+INNER JOIN Loan l
+ON c.cust_id = l.cust_id;

@@ -1,0 +1,87 @@
+CREATE TABLE Library (
+    book_id NUMBER PRIMARY KEY,
+    book_name VARCHAR2(100),
+    author VARCHAR2(50),
+    category VARCHAR2(50),
+    date DATE,
+    operation VARCHAR2(20)
+);
+
+CREATE TABLE Library_Audit (
+    book_id NUMBER,
+    book_name VARCHAR2(100),
+    author VARCHAR2(50),
+    category VARCHAR2(50),
+    date DATE,
+    operation VARCHAR2(20)
+);
+
+INSERT INTO Library VALUES
+(1, 'DBMS', 'Korth', 'Education', DATE '2026-01-01', 'INSERT');
+
+INSERT INTO Library VALUES
+(2, 'Java Programming', 'James Gosling', 'Programming', DATE '2026-01-02', 'INSERT');
+
+INSERT INTO Library VALUES
+(3, 'Python Basics', 'Guido', 'Programming', DATE '2026-01-03', 'INSERT');
+
+INSERT INTO Library VALUES
+(4, 'Operating System', 'Galvin', 'Education', DATE '2026-01-04', 'INSERT');
+
+INSERT INTO Library VALUES
+(5, 'Computer Networks', 'Tanenbaum', 'Technology', DATE '2026-01-05', 'INSERT');
+
+INSERT INTO Library VALUES
+(6, 'Data Structures', 'Mark Allen', 'Education', DATE '2026-01-06', 'INSERT');
+
+INSERT INTO Library VALUES
+(7, 'C Programming', 'Dennis Ritchie', 'Programming', DATE '2026-01-07', 'INSERT');
+
+INSERT INTO Library VALUES
+(8, 'Artificial Intelligence', 'Russell', 'Technology', DATE '2026-01-08', 'INSERT');
+
+INSERT INTO Library VALUES
+(9, 'Web Development', 'Jon Duckett', 'Programming', DATE '2026-01-09', 'INSERT');
+
+INSERT INTO Library VALUES
+(10, 'Software Engineering', 'Pressman', 'Education', DATE '2026-01-10', 'INSERT');
+
+COMMIT;
+
+CREATE OR REPLACE TRIGGER trg_library_audit
+AFTER UPDATE OR DELETE ON Library
+FOR EACH ROW
+BEGIN
+    IF UPDATING THEN
+        INSERT INTO Library_Audit
+        VALUES (
+            :OLD.book_id,
+            :OLD.book_name,
+            :OLD.author,
+            :OLD.category,
+            :OLD.date,
+            'UPDATE'
+        );
+
+    ELSIF DELETING THEN
+        INSERT INTO Library_Audit
+        VALUES (
+            :OLD.book_id,
+            :OLD.book_name,
+            :OLD.author,
+            :OLD.category,
+            :OLD.date,
+            'DELETE'
+        );
+    END IF;
+END;
+/
+
+UPDATE Library
+SET book_name = 'Advanced DBMS'
+WHERE book_id = 1;
+
+DELETE FROM Library
+WHERE book_id = 2;
+
+SELECT * FROM Library_Audit;

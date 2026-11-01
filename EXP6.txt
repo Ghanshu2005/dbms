@@ -1,0 +1,52 @@
+CREATE TABLE Employee (
+    Emp_ID NUMBER PRIMARY KEY,
+    Emp_Name VARCHAR2(50),
+    Department VARCHAR2(30),
+    Salary NUMBER(10,2)
+);
+
+INSERT INTO Employee VALUES (1, 'Rahul', 'IT', 45000);
+INSERT INTO Employee VALUES (2, 'Amit', 'HR', 25000);
+INSERT INTO Employee VALUES (3, 'Priya', 'Finance', 55000);
+INSERT INTO Employee VALUES (4, 'Sneha', 'IT', 35000);
+INSERT INTO Employee VALUES (5, 'Karan', 'Marketing', 28000);
+INSERT INTO Employee VALUES (6, 'Pooja', 'HR', 40000);
+INSERT INTO Employee VALUES (7, 'Rohan', 'IT', 60000);
+INSERT INTO Employee VALUES (8, 'Payal', 'Finance', 30000);
+INSERT INTO Employee VALUES (9, 'Anjali', 'Marketing', 50000);
+INSERT INTO Employee VALUES (10, 'Pratik', 'IT', 32000);
+
+COMMIT;
+
+SELECT * FROM Employee;
+
+SET SERVEROUTPUT ON;
+
+DECLARE
+    CURSOR emp_cursor IS
+        SELECT *
+        FROM Employee
+        WHERE Salary > 30000;
+
+    emp_record Employee%ROWTYPE;
+
+BEGIN
+    OPEN emp_cursor;
+
+    LOOP
+        FETCH emp_cursor INTO emp_record;
+
+        EXIT WHEN emp_cursor%NOTFOUND;
+
+        DBMS_OUTPUT.PUT_LINE(
+            'ID: ' || emp_record.Emp_ID ||
+            ' Name: ' || emp_record.Emp_Name ||
+            ' Department: ' || emp_record.Department ||
+            ' Salary: ' || emp_record.Salary
+        );
+
+    END LOOP;
+
+    CLOSE emp_cursor;
+END;
+/

@@ -1,0 +1,51 @@
+CREATE DATABASE DBMS_Practical4;
+USE DBMS_Practical4;
+
+CREATE TABLE Stud_Marks (
+    rollno INT PRIMARY KEY,
+    name VARCHAR(50),
+    total_marks INT
+);
+
+CREATE TABLE Result (
+    Roll INT PRIMARY KEY,
+    Name VARCHAR(50),
+    Class VARCHAR(30),
+    FOREIGN KEY (Roll) REFERENCES Stud_Marks(rollno)
+);
+
+INSERT INTO Stud_Marks VALUES
+(1, 'Pratik', 1450),
+(2, 'Rahul', 1200),
+(3, 'Priya', 1050),
+(4, 'Amit', 990),
+(5, 'Sneha', 950),
+(6, 'Pooja', 920),
+(7, 'Karan', 899),
+(8, 'Rohan', 850),
+(9, 'Payal', 825),
+(10, 'Anjali', 750);
+
+DELIMITER //
+
+CREATE PROCEDURE proc_Grade()
+BEGIN
+    INSERT INTO Result (Roll, Name, Class)
+    SELECT rollno, name,
+    CASE
+        WHEN total_marks >= 990 AND total_marks <= 1500
+            THEN 'Distinction'
+        WHEN total_marks >= 900 AND total_marks <= 989
+            THEN 'First Class'
+        WHEN total_marks >= 825 AND total_marks <= 899
+            THEN 'Higher Second Class'
+        ELSE 'No Category'
+    END
+    FROM Stud_Marks;
+END //
+
+DELIMITER ;
+
+CALL proc_Grade();
+
+SELECT * FROM Result;

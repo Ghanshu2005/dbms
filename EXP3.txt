@@ -1,0 +1,91 @@
+CREATE TABLE Students (
+    student_id INT PRIMARY KEY,
+    name VARCHAR(50),
+    city VARCHAR(30)
+);
+CREATE TABLE Enrollments (
+    enroll_id INT PRIMARY KEY,
+    student_id INT,
+    course VARCHAR(50),
+    marks INT,
+    FOREIGN KEY (student_id) REFERENCES Students(student_id)
+);
+
+Q1. Display student names and the courses in which they are enrolled.
+SELECT s.name, e.course
+FROM Students s
+INNER JOIN Enrollments e
+ON s.student_id = e.student_id;
+
+Q2. Display all students and their course details, including students who are not enrolled in any course.
+SELECT s.student_id, s.name, e.course, e.marks
+FROM Students s
+LEFT JOIN Enrollments e
+ON s.student_id = e.student_id;
+
+Q3. Display the names of students enrolled in DBMS along with their marks.
+SELECT s.name, e.marks
+FROM Students s
+INNER JOIN Enrollments e
+ON s.student_id = e.student_id
+WHERE e.course = 'DBMS';
+
+Q4. Display enrollments that do not have a matching student record.
+SELECT e.*
+FROM Enrollments e
+LEFT JOIN Students s
+ON e.student_id = s.student_id
+WHERE s.student_id IS NULL;
+
+\Q5. Display students who have obtained marks less than the average marks of all enrollments.
+SELECT s.name, e.course, e.marks
+FROM Students s
+INNER JOIN Enrollments e
+ON s.student_id = e.student_id
+WHERE e.marks < (
+    SELECT AVG(marks)
+    FROM Enrollments
+);
+
+Q6. Display students who have obtained marks equal to the highest marks.
+SELECT s.student_id, s.name, e.marks
+FROM Students s
+INNER JOIN Enrollments e
+ON s.student_id = e.student_id
+WHERE e.marks = (
+    SELECT MAX(marks)
+    FROM Enrollments
+);
+
+Q7. Display students who belong to Pune.
+SELECT *
+FROM Students
+WHERE city = 'Pune';
+
+Q8. Display students enrolled in Python.
+SELECT s.student_id, s.name, e.course, e.marks
+FROM Students s
+INNER JOIN Enrollments e
+ON s.student_id = e.student_id
+WHERE e.course = 'Python';
+
+Q9. Create a view named course_average_view displaying course names and their average marks. Display all records from the view.
+This question has two steps.
+
+Step 1: Create the view
+CREATE VIEW course_average_view AS
+SELECT course, AVG(marks) AS average_marks
+FROM Enrollments
+GROUP BY course;
+
+Q10. Create an index on Students.city and a unique index on Students.student_id.
+Step 1: Create an index on city
+CREATE INDEX idx_city
+ON Students(city);
+
+Step 2: Create a unique index on student_id
+CREATE UNIQUE INDEX idx_student_id
+ON Students(student_id);
+
+Step 3: Verify indexes
+SHOW INDEX FROM Students;

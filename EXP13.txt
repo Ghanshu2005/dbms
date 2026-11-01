@@ -1,0 +1,120 @@
+// Create or switch database
+use Student
+
+// Create student collection
+db.createCollection("student")
+
+db.student.insertMany([
+    {
+        roll_no: 1,
+        sname: "Amit",
+        dept: "Computer",
+        marks: 85
+    },
+    {
+        roll_no: 2,
+        sname: "Rahul",
+        dept: "IT",
+        marks: 65
+    },
+    {
+        roll_no: 3,
+        sname: "Sneha",
+        dept: "Computer",
+        marks: 92
+    },
+    {
+        roll_no: 4,
+        sname: "Priya",
+        dept: "ENTC",
+        marks: 35
+    },
+    {
+        roll_no: 5,
+        sname: "Karan",
+        dept: "IT",
+        marks: 78
+    },
+    {
+        roll_no: 6,
+        sname: "Neha",
+        dept: "Computer",
+        marks: 55
+    },
+    {
+        roll_no: 7,
+        sname: "Rohan",
+        dept: "ENTC",
+        marks: 40
+    }
+])
+
+2. Display information of all students
+db.student.find()
+
+3. Display students belonging to Computer department
+db.student.find({
+    dept: "Computer"
+})
+
+4. Display students belonging to Computer or IT department using logical operator
+db.student.find({
+    $or: [
+        { dept: "Computer" },
+        { dept: "IT" }
+    ]
+})
+
+5. Display students whose marks are greater than 70
+db.student.find({
+    marks: { $gt: 70 }
+})
+
+6. Display students whose marks are greater than or equal to 80 and belong to Computer department
+db.student.find({
+    marks: { $gte: 80 },
+    dept: "Computer"
+})
+
+7. Display students whose marks are less than 40 or belong to IT department
+db.student.find({
+    $or: [
+        { marks: { $lt: 40 } },
+        { dept: "IT" }
+    ]
+})
+
+8. Display students whose marks are between 40 and 80
+db.student.find({
+    marks: {
+        $gte: 40,
+        $lte: 80
+    }
+})
+
+9. Display students whose department is not IT
+db.student.find({
+    dept: { $ne: "IT" }
+}) 	
+
+10. Display total marks of students in each department
+db.student.aggregate([
+    {
+        $group: {
+            _id: "$dept",
+            Total_Marks: { $sum: "$marks" }
+        }
+    }
+])
+
+11. Create an index on sname field and drop the index
+Create index:
+db.student.createIndex({ sname: 1 })
+
+
+Display indexes:
+db.student.getIndexes()
+
+
+Drop index:
+db.student.dropIndex({ sname: 1 })
